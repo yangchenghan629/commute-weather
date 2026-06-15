@@ -127,9 +127,34 @@ def handle_postback(event):
             ))
 
         elif data == "action=check_calendar":
+            from fetcher.calendar_fetcher import get_upcoming_events
+            from fetcher.geocoding import geocode
+            events = get_upcoming_events(hours_ahead=24)
+
+            if not events:
+                msg = "📅 今日沒有任何行程！"
+                line_bot_api.reply_message(ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[TextMessage(text=msg)]
+                ))
+                return
+
+            # 整理行程清單
+            lines = ["📅 今日行程：\n"]
+            for e in events:
+                start_str = e["start"].get("dateTime", e["start"].get("date", ""))
+                try:
+                    from datetime import datetime
+                    start_time = datetime.fromisoformat(start_str).strftime("%H:%M")
+                except:
+                    start_time = start_str
+                name = e.get("summary", "（無標題）")
+                location = e.get("location", "（無地點）")
+                lines.append(f"🕐 {start_time} {name}\n📍 {location}\n")
+
             line_bot_api.reply_message(ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text="📅 行程查詢功能開發中...")]
+                messages=[TextMessage(text="\n".join(lines))]
             ))
 
 if __name__ == "__main__":
