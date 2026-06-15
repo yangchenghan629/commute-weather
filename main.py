@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 import os
 import requests
 
-ALERT_BEFORE_MINUTES = 90
+ALERT_BEFORE_MINUTES = 60
 LINE_CHANNEL_ACCESS_TOKEN = os.environ.get("LINE_CHANNEL_ACCESS_TOKEN", "")
 LINE_USER_ID = os.environ.get("LINE_USER_ID", "")
 
