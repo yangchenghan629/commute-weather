@@ -8,20 +8,17 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-      with:
-        node-version: '24'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          node-version: '24'
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: 安裝套件
-        run: |
-          pip install requests numpy pillow geopy \
-            google-api-python-client google-auth-oauthlib \
-            line-bot-sdk
+        run: pip install -r requirements.txt
             
       - name: 執行主程式
         env:
