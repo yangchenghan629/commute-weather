@@ -20,7 +20,6 @@ jobs:
           pip install requests numpy pillow geopy \
             google-api-python-client google-auth-oauthlib \
             line-bot-sdk
-
       - name: 執行主程式
         env:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
@@ -28,4 +27,5 @@ jobs:
           LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
           LINE_USER_ID: ${{ secrets.LINE_USER_ID }}
           GOOGLE_TOKEN_JSON: ${{ secrets.GOOGLE_TOKEN_JSON }}
-        run: python main.py
+          PYTHONPATH: /home/runner/work/commute-weather/commute-weather
+        run: python main.py 
