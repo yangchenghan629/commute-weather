@@ -17,7 +17,7 @@ def save_cache(cache):
     os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
-        
+
 def geocode(location_str):
     # 確保 data 資料夾存在
     os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
@@ -27,13 +27,26 @@ def geocode(location_str):
         return cache[location_str]
 
     import re
-    # 產生多個查詢候選：原始 → 逗號前 → 移除數字和"台灣" → 只取前兩個中文詞
     queries = [location_str]
-    if "," in location_str:
-        queries.append(location_str.split(",")[0].strip())
-    simplified = re.sub(r"(^\d+|台灣|臺灣)", "", location_str.split(",")[0]).strip()
-    if simplified:
+
+    # 逗號前的部分
+    first_part = location_str.split(",")[0].strip()
+    queries.append(first_part)
+
+    # 移除數字、台灣、臺灣
+    simplified = re.sub(r"(^\d+|台灣|臺灣)", "", first_part).strip()
+    if simplified and simplified not in queries:
         queries.append(simplified)
+
+    # 只取機構名稱（到館/院/校/站等）
+    match = re.match(r"(.{2,10}[館院校站廳場樓區])", first_part)
+    if match:
+        queries.append(match.group(1))
+
+    # 只取大學名稱
+    short = re.match(r"([\u4e00-\u9fff]{2,6}大學|[\u4e00-\u9fff]{2,6}學校)", first_part)
+    if short:
+        queries.append(short.group(1))
 
     for q in queries:
         try:
