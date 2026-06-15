@@ -1,0 +1,7 @@
+requests
+numpy
+pillow
+geopy
+google-api-python-client
+google-auth-oauthlib
+line-bot-sdk
