@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: commute-weather-bot
+    runtime: python
+    buildCommand: pip install -r requirements-webhook.txt
+    startCommand: gunicorn webhook:app
+    envVars:
+      - key: LINE_CHANNEL_SECRET
+        sync: false
+      - key: LINE_CHANNEL_ACCESS_TOKEN
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        sync: false
