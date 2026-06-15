@@ -2,8 +2,8 @@ name: Commute Weather Scheduler
 
 on:
   schedule:
-    - cron: "*/10 * * * *"  # 每10分鐘執行
-  workflow_dispatch:          # 可手動觸發測試
+    - cron: "0 * * * *"  # 每小時整點執行
+  workflow_dispatch:
 
 jobs:
   run:
