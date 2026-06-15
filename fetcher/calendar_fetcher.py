@@ -14,8 +14,20 @@ CREDS_PATH = os.path.join(os.path.dirname(__file__), "..", "credentials.json")
 
 def get_calendar_service():
     creds = None
-    if os.path.exists(TOKEN_PATH):
+
+    # GitHub Actions 環境：從環境變數讀取 token
+    token_json = os.environ.get("GOOGLE_TOKEN_JSON")
+    if token_json:
+        import json
+        from google.oauth2.credentials import Credentials
+        creds = Credentials.from_authorized_user_info(
+            json.loads(token_json), SCOPES
+        )
+
+    # 本機環境：從檔案讀取
+    elif os.path.exists(TOKEN_PATH):
         creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -29,6 +41,7 @@ def get_calendar_service():
             creds = flow.credentials
         with open(TOKEN_PATH, "w") as f:
             f.write(creds.to_json())
+
     return build("calendar", "v3", credentials=creds)
 
 def get_upcoming_events(hours_ahead=24):
