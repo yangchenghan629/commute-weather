@@ -2,8 +2,6 @@
 import requests
 import numpy as np
 import urllib3
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import config
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
