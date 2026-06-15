@@ -6,7 +6,7 @@ from processor.decision import get_commute_suggestion
 from messenger.linebot import send_weather_alert
 from datetime import datetime, timezone
 
-ALERT_BEFORE_MINUTES = 60  # 出發前幾分鐘提醒
+ALERT_BEFORE_MINUTES = 90  # 出發前幾分鐘提醒
 
 def main():
     print("=== 通勤天氣系統啟動 ===")
