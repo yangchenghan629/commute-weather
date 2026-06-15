@@ -14,10 +14,14 @@ def load_cache():
     return {}
 
 def save_cache(cache):
+    os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
     with open(CACHE_FILE, "w", encoding="utf-8") as f:
         json.dump(cache, f, ensure_ascii=False, indent=2)
-
+        
 def geocode(location_str):
+    # 確保 data 資料夾存在
+    os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
+    
     cache = load_cache()
     if location_str in cache:
         return cache[location_str]
