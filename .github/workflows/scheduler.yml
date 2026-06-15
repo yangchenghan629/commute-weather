@@ -8,12 +8,14 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        node-version: '24'
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
 
       - name: 安裝套件
         run: |
