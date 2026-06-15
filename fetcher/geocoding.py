@@ -20,35 +20,33 @@ def save_cache(cache):
 def geocode(location_str):
     cache = load_cache()
     if location_str in cache:
-        print(f"（快取）{location_str}")
         return cache[location_str]
 
-    # 嘗試完整地址
+    import re
+    # 產生多個查詢候選：原始 → 逗號前 → 移除數字和"台灣" → 只取前兩個中文詞
     queries = [location_str]
-
-    # 如果包含逗號，也試試第一段
     if "," in location_str:
         queries.append(location_str.split(",")[0].strip())
-
-    # 也試試移除郵遞區號（純數字開頭的部分）
-    import re
-    simplified = re.sub(r"^\d+", "", location_str).strip()
-    if simplified != location_str:
+    simplified = re.sub(r"(^\d+|台灣|臺灣)", "", location_str.split(",")[0]).strip()
+    if simplified:
         queries.append(simplified)
 
     for q in queries:
-        r = requests.get(
-            "https://nominatim.openstreetmap.org/search",
-            params={"q": q, "format": "json", "limit": 1},
-            headers={"User-Agent": "commute-weather-app"}
-        )
-        results = r.json()
-        if results:
-            coords = {"lat": float(results[0]["lat"]), "lon": float(results[0]["lon"])}
-            cache[location_str] = coords
-            save_cache(cache)
-            print(f"找到：{location_str} → {coords}（查詢：{q}）")
-            return coords
+        try:
+            r = requests.get(
+                "https://nominatim.openstreetmap.org/search",
+                params={"q": q, "format": "json", "limit": 1},
+                headers={"User-Agent": "commute-weather-app"},
+                timeout=10
+            )
+            results = r.json()
+            if results:
+                coords = {"lat": float(results[0]["lat"]), "lon": float(results[0]["lon"])}
+                cache[location_str] = coords
+                save_cache(cache)
+                return coords
+        except Exception as e:
+            print(f"查詢失敗：{q}，錯誤：{e}")
 
     print(f"找不到地點：{location_str}")
     return None
