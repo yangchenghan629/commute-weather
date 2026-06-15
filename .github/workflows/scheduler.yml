@@ -1,9 +1,12 @@
-name: Commute Weather Scheduler
-
 on:
   schedule:
-    - cron: "0 * * * *"  # 每小時整點執行
+    - cron: "0 * * * *"
   workflow_dispatch:
+    inputs:
+      manual:
+        description: '是否手動觸發'
+        required: false
+        default: 'false'
 
 jobs:
   run:
@@ -17,7 +20,7 @@ jobs:
 
       - name: 安裝套件
         run: pip install -r requirements.txt
-            
+
       - name: 執行主程式
         env:
           CWA_API_KEY: ${{ secrets.CWA_API_KEY }}
@@ -27,4 +30,8 @@ jobs:
           GOOGLE_TOKEN_JSON: ${{ secrets.GOOGLE_TOKEN_JSON }}
         run: |
           cd $GITHUB_WORKSPACE
-          python main.py
+          if [ "${{ github.event.inputs.manual }}" = "true" ]; then
+            python main.py --manual
+          else
+            python main.py
+          fi

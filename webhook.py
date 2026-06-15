@@ -21,14 +21,16 @@ handler = WebhookHandler(LINE_CHANNEL_SECRET)
 configuration = Configuration(access_token=LINE_CHANNEL_ACCESS_TOKEN)
 
 def trigger_github_actions():
-    """觸發 GitHub Actions workflow"""
     r = requests.post(
         f"https://api.github.com/repos/{GITHUB_REPO}/actions/workflows/scheduler.yml/dispatches",
         headers={
             "Authorization": f"Bearer {GITHUB_TOKEN}",
             "Accept": "application/vnd.github.v3+json"
         },
-        json={"ref": "main"}
+        json={
+            "ref": "main",
+            "inputs": {"manual": "true"}  # 傳入手動標記
+        }
     )
     return r.status_code == 204
 
