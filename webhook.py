@@ -29,9 +29,10 @@ def trigger_github_actions():
         },
         json={
             "ref": "main",
-            "inputs": {"manual": "true"}  # 傳入手動標記
+            "inputs": {"manual": "true"}
         }
     )
+    print(f"GitHub API 回應：{r.status_code}")
     return r.status_code == 204
 
 def send_menu(reply_token):
