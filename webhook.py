@@ -1,6 +1,7 @@
 # webhook.py
 import os
 import requests
+from datetime import datetime
 from flask import Flask, request, abort
 from linebot.v3.webhook import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -129,8 +130,9 @@ def handle_postback(event):
             # 取得雷達圖 URL
             import urllib3
             urllib3.disable_warnings()
-            radar_url = "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-003.png"
-
+            ts = int(datetime.now().timestamp())
+            radar_url = f"https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-003.png?t={ts}"
+            
             # 抓雨量格點
             grid = fetch_qpesums()
             events = get_upcoming_events(hours_ahead=24)
