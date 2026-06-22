@@ -9,6 +9,11 @@ from linebot.v3.messaging import (
     ReplyMessageRequest, TextMessage, FlexMessage, FlexContainer
 )
 from linebot.v3.webhooks import MessageEvent, PostbackEvent, TextMessageContent
+from linebot.v3.messaging import (
+    Configuration, ApiClient, MessagingApi,
+    ReplyMessageRequest, TextMessage, FlexMessage, FlexContainer,
+    ImageMessage  # 加這個
+)
 
 app = Flask(__name__)
 
@@ -115,15 +120,69 @@ def handle_postback(event):
         line_bot_api = MessagingApi(api_client)
 
         if data == "action=check_weather":
-            # 觸發 GitHub Actions
-            success = trigger_github_actions()
-            if success:
-                msg = "⏳ 正在查詢天氣，約 30 秒後會收到通知！"
-            else:
-                msg = "❌ 查詢失敗，請稍後再試"
+            from fetcher.qpesums import fetch_qpesums, find_nearest_rain
+            from fetcher.calendar_fetcher import get_upcoming_events
+            from fetcher.geocoding import geocode
+            from processor.decision import get_commute_suggestion
+            from datetime import datetime, timezone
+
+            # 取得雷達圖 URL
+            import urllib3
+            urllib3.disable_warnings()
+            radar_url = "https://cwaopendata.s3.ap-northeast-1.amazonaws.com/Observation/O-A0058-003.png"
+
+            # 抓雨量格點
+            grid = fetch_qpesums()
+            events = get_upcoming_events(hours_ahead=24)
+            now = datetime.now(timezone.utc)
+
+            if not events:
+                line_bot_api.reply_message(ReplyMessageRequest(
+                    reply_token=event.reply_token,
+                    messages=[
+                        TextMessage(text="📅 未來 24 小時沒有行程！"),
+                        ImageMessage(original_content_url=radar_url, preview_image_url=radar_url)
+                    ]
+                ))
+                return
+
+            # 整理行程與雨量
+            lines = ["🌧 通勤天氣查詢結果：\n"]
+            for e in events:
+                start_str = e["start"].get("dateTime")
+                if not start_str:
+                    continue
+                start_time = datetime.fromisoformat(start_str)
+                time_until = (start_time - now).total_seconds() / 60
+                if time_until < -60:
+                    continue
+                name = e.get("summary", "（無標題）")
+                location_str = e.get("location", "")
+                time_str = start_time.strftime("%H:%M")
+
+                if location_str:
+                    coords = geocode(location_str)
+                    if coords:
+                        rain = find_nearest_rain(grid, coords["lat"], coords["lon"])
+                        suggestion = get_commute_suggestion(rain)
+                        lines.append(f"🕐 {time_str} {name}")
+                        lines.append(f"📍 {location_str}")
+                        lines.append(f"{suggestion['level']} {rain:.1f}mm → {suggestion['suggestion']}\n")
+                    else:
+                        lines.append(f"🕐 {time_str} {name}")
+                        lines.append(f"📍 {location_str}（地點查詢失敗）\n")
+                else:
+                    lines.append(f"🕐 {time_str} {name}（無地點）\n")
+
             line_bot_api.reply_message(ReplyMessageRequest(
                 reply_token=event.reply_token,
-                messages=[TextMessage(text=msg)]
+                messages=[
+                    TextMessage(text="\n".join(lines)),
+                    ImageMessage(
+                        original_content_url=radar_url,
+                        preview_image_url=radar_url
+                    )
+                ]
             ))
 
         elif data == "action=check_calendar":
