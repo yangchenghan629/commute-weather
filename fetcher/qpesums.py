@@ -19,8 +19,8 @@ def fetch_qpesums():
         params={"Authorization": config.CWA_API_KEY, "format": "JSON"},
         verify=False
     )
-    # 清除可能的 BOM 或多餘字元
     text = r.content.decode("utf-8-sig").strip()
+    print(f"API 回應前20字元：{repr(text[:20])}")  # debug
     import json
     data = json.loads(text)
     content = data["cwaopendata"]["dataset"]["contents"]["content"]
