@@ -21,7 +21,7 @@ def send_no_event_message():
     }
     body = {
         "to": LINE_USER_ID,
-        "messages": [{"type": "text", "text": "📅 未來 90 分鐘內沒有行程！"}]
+        "messages": [{"type": "text", "text": "📅 未來 60 分鐘內沒有行程！"}]
     }
     requests.post("https://api.line.me/v2/bot/message/push", headers=headers, json=body)
 
