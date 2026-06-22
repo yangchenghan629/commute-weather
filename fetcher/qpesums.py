@@ -19,7 +19,10 @@ def fetch_qpesums():
         params={"Authorization": config.CWA_API_KEY, "format": "JSON"},
         verify=False
     )
-    data = r.json()
+    # 清除可能的 BOM 或多餘字元
+    text = r.content.decode("utf-8-sig").strip()
+    import json
+    data = json.loads(text)
     content = data["cwaopendata"]["dataset"]["contents"]["content"]
     values = [float(v) for v in content.split(",")]
     grid = np.array(values).reshape(DIM_Y, DIM_X)
