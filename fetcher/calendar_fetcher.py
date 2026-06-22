@@ -15,23 +15,25 @@ CREDS_PATH = os.path.join(os.path.dirname(__file__), "..", "credentials.json")
 def get_calendar_service():
     creds = None
 
-    # 從環境變數讀取 token（GitHub Actions 和 Render 都用這個）
+    # 從環境變數讀取 token（Render / GitHub Actions）
     token_json = os.environ.get("GOOGLE_TOKEN_JSON")
     if token_json:
         import json
         creds = Credentials.from_authorized_user_info(
             json.loads(token_json), SCOPES
         )
-
-    # 本機環境：從檔案讀取
-    elif os.path.exists(TOKEN_PATH):
-        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
-
-    if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
-        elif os.path.exists(TOKEN_PATH):
-            # 只有本機才能互動式授權
+
+    # 本機：從檔案讀取
+    elif os.path.exists(TOKEN_PATH):
+        creds = Credentials.from_authorized_user_file(TOKEN_PATH, SCOPES)
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+
+    # 本機：互動式授權（token.json 不存在時）
+    if not creds or not creds.valid:
+        if os.path.exists(CREDS_PATH):
             flow = InstalledAppFlow.from_client_secrets_file(CREDS_PATH, SCOPES)
             flow.redirect_uri = "urn:ietf:wg:oauth:2.0:oob"
             auth_url, _ = flow.authorization_url(prompt="consent")
@@ -42,7 +44,7 @@ def get_calendar_service():
             with open(TOKEN_PATH, "w") as f:
                 f.write(creds.to_json())
         else:
-            raise Exception("無法取得 Google 授權，請設定 GOOGLE_TOKEN_JSON 環境變數")
+            raise Exception("找不到 credentials.json，請重新下載")
 
     return build("calendar", "v3", credentials=creds)
 

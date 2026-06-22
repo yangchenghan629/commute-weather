@@ -15,7 +15,7 @@ DIM_Y = 561  # 緯向
 
 def fetch_qpesums():
     r = requests.get(
-        "https://opendata.cwa.gov.tw/dataset/observation/F-B0046-001",
+        "https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/F-B0046-001",
         params={"Authorization": config.CWA_API_KEY, "format": "JSON"},
         verify=False
     )
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     import json, urllib3, requests
     urllib3.disable_warnings()
     r = requests.get(
-        "https://opendata.cwa.gov.tw/dataset/observation/F-B0046-001",
+        "https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/F-B0046-001",
         params={"Authorization": config.CWA_API_KEY, "format": "JSON"},
         verify=False
     )
