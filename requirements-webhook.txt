@@ -4,3 +4,4 @@ line-bot-sdk
 gunicorn
 google-api-python-client
 google-auth-oauthlib
+numpy
