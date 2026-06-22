@@ -15,7 +15,7 @@ DIM_Y = 561  # 緯向
 
 def fetch_qpesums():
     r = requests.get(
-        "https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/O-B0045-001",
+        "https://opendata.cwa.gov.tw/dataset/observation/F-B0046-001",
         params={"Authorization": config.CWA_API_KEY, "format": "JSON"},
         verify=False
     )
@@ -26,7 +26,7 @@ def fetch_qpesums():
     return grid
 
 def find_nearest_rain(grid, target_lat, target_lon):
-    """輸入經緯度，回傳該格點過去1小時雨量(mm)"""
+    """輸入經緯度，回傳該格點未來1小時雨量估計(mm)"""
     x = round((target_lon - LON_START) / RESOLUTION)
     y = round((target_lat - LAT_START) / RESOLUTION)
 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     import json, urllib3, requests
     urllib3.disable_warnings()
     r = requests.get(
-        "https://opendata.cwa.gov.tw/fileapi/v1/opendataapi/O-B0045-001",
+        "https://opendata.cwa.gov.tw/dataset/observation/F-B0046-001",
         params={"Authorization": config.CWA_API_KEY, "format": "JSON"},
         verify=False
     )
