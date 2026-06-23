@@ -23,7 +23,7 @@ def get_calendar_service():
     return build("calendar", "v3", credentials=creds)
 
 
-def get_upcoming_events(calendar_id: str, hours_ahead: int = 24):
+def get_upcoming_events(hours_ahead=24, calendar_id="primary"):
     """
     查詢指定 calendar_id 的未來行程。
     calendar_id 由用戶提供，存在 Redis，不需要儲存任何 token。
